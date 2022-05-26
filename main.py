@@ -10,7 +10,7 @@ pytube.request.default_range_size = 524288
 
 class VideoResolution(str, Enum):
     q_max = "max"
-    q_1080 = "1024p"
+    q_1080 = "1080p"
     q_720 = "720p"
     q_360 = "360p"
     q_min = "min"
@@ -21,7 +21,7 @@ def main(link: str = typer.Option("", help="Link of the YouTube Video to Downloa
                                                     help="You can select the resolution to download your file at."),
          audio_only: bool = False):
     while not link:
-        link = typer.prompt("Please input a youtube video link to be downloaded: ")
+        link = typer.prompt("Please input a youtube video link to be downloaded")
 
     yt = YouTube(link)
     typer.echo(f"\nTitle: {yt.title}\n")
@@ -36,6 +36,8 @@ def main(link: str = typer.Option("", help="Link of the YouTube Video to Downloa
         ys = yt.streams.get_lowest_resolution()
     else:
         ys = yt.streams.get_by_resolution(resolution.value)
+    if not ys:
+        ys = yt.streams.get_highest_resolution()
 
     with typer.progressbar(length=ys.filesize, show_eta=True, show_percent=True, color=True) as progress:
         def progress_callback(bytes_remaining):
